@@ -1,0 +1,65 @@
+version: 2
+
+models:
+  - name: stg_sales_order_detail
+    description: "Staging model for sales order details, calculating base SalesAmount"
+    columns:
+      - name: SalesOrderID
+        tests:
+          - not_null
+      - name: ProductID
+        tests:
+          - not_null
+
+  - name: int_sales
+    description: "Intermediate model calculating discount amounts and net sales"
+
+  - name: fct_sales
+    description: "Fact model containing core sales metrics for reporting"
+
+  - name: sales_summary
+    description: "Bonus aggregated model summarizing total orders, quantities, sales, discounts, and net sales"
+
+  - name: stg_customer
+    columns:
+      - name: CustomerID
+        tests:
+          - not_null
+          - unique
+
+  - name: dim_customer
+    columns:
+      - name: CustomerID
+        tests:
+          - not_null
+          - unique
+
+  - name: fact_sales
+    columns:
+      - name: CustomerID
+        tests:
+          - relationships:
+              to: ref('dim_customer')
+              field: CustomerID
+      - name: OrderStatus
+        tests:
+          - accepted_values:
+              values: [1, 2, 3, 4, 5]
+
+seeds:
+  - name: product_category_mapping
+    columns:
+      - name: ProductCategoryID
+        tests:
+          - not_null
+          - unique
+      - name: BusinessGroup
+        tests:
+          - unique
+          - accepted_values:
+              values:
+                - Vehicle
+                - Parts
+                - Apparel
+                - Accessories
+                - Equipment
